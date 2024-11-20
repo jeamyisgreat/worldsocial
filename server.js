@@ -3,6 +3,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path');
 const config = require('./config');
 
 const app = express();
@@ -10,6 +11,9 @@ const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // ** Route: User Login to Get Access Token **
 app.post('/api/login', async (req, res) => {
@@ -65,6 +69,11 @@ app.post('/api/post-status', async (req, res) => {
         console.error('Error posting emoji status:', error);
         res.status(500).send('Error posting emoji status.');
     }
+});
+
+// The "catchall" handler: for any request that doesn't match an API route, send back React's index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
